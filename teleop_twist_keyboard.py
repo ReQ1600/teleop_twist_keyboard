@@ -53,12 +53,9 @@ Thrust for Motors 0..3 in order:
    u    i    o    p   | thrust++
    j    k    l    ;   | thrust--
 
-t : up (+z)
-b : down (-z)
-
-anything else : stop
-
 q/e : increase/decrease thrust step by 1%
+
+t/g : light on/off
 
 CTRL-C to quit
 """
@@ -77,6 +74,11 @@ moveBindings = {
 speedBindings = {
     'q': 0.01,
     'e': -0.01
+}
+
+lightBindings = {
+    't' : 1.0,
+    'g' : 0.0
 }
 
 
@@ -138,6 +140,7 @@ def main():
     y = 0.0
     z = 0.0
     th = 0.0
+    light = 0.0
     status = 0.0
 
     twist_msg = TwistMsg()
@@ -166,11 +169,18 @@ def main():
                 if (status == 14):
                     print(msg)
                 status = (status + 1) % 15
+            elif key in lightBindings:
+                light = lightBindings[key]
+                x = 0.0
+                y = 0.0
+                z = 0.0
+                th = 0.0
             else:
                 x = 0.0
                 y = 0.0
                 z = 0.0
                 th = 0.0
+                light = 0.0
                 if (key == '\x03'):
                     break
 
@@ -190,7 +200,7 @@ def main():
             twist.angular.x += th * speed
             twist.angular.x = max(-1.0, min(twist.angular.x, 1.0))
 
-            twist.angular.y = 0.0
+            twist.angular.y = light
             twist.angular.z = 0.0
 
             pub.publish(twist)
